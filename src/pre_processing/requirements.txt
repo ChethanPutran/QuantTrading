@@ -1,0 +1,6 @@
+gym 
+numpy 
+pandas 
+matplotlib 
+yfinance
+plotly

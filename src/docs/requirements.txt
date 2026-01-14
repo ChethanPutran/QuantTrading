@@ -1,0 +1,7 @@
+ta-lib==0.6.3
+pandas-ta
+yfinance
+pandas
+requests
+nltk
+textblob

@@ -1,0 +1,58 @@
+"Mahindra &
+                Mahindra",
+"Reliance
+                Industries",
+"Adani
+                Enterprises",
+"Britannia
+                Industries",
+"AWL Agri Business",
+"Marico",
+"Railtel
+                Corp",
+"Tech Mahindra",
+"Bandhan Bank",
+"Eternal (Zomato)",
+"Global
+                Vectra",
+"Macrotech Devs",
+"SBI Life
+                Insurance",
+"Adani Power",
+"Cholamandalam
+                Fin",
+"Bajaj Finserv",
+"Power Mech
+                Projects",
+"Anup
+                Engineering",
+"Manorama Inds",
+"HDFC
+                Life Insurance",
+"RR Kabel",
+"Waaree
+                Renewables",
+"Exide Industries",
+"Mankind Pharma",
+"Waaree Energies",
+"Colgate-Palmolive",
+"Go Fashion
+                (India)",
+"Pokarna",
+"Schaeffler India",
+"CEAT",
+"Sonata Software",
+"Tube
+                Investments",
+"Bharti Hexacom",
+"Vishal Mega Mart",
+"HAL",
+"Bharat
+                Electronics",
+"Mazagon Dock
+                Ship",
+"Garden Reach",
+"Cochin Shipyard",
+"Paras Defence",
+"Data Patterns
+                (I)",
