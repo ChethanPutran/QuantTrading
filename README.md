@@ -1,5 +1,5 @@
-* **Fully Automated Stock Prediction System**: A system that automatically fetches real-time data, makes stock price predictions, and periodically retrains the model based on new data, with continuous backtesting and evaluation to ensure high performance.
-* 
+**Fully Automated Stock Prediction System**: A system that automatically fetches real-time data, makes stock price predictions, and periodically retrains the model based on new data, with continuous backtesting and evaluation to ensure high performance.
+  
 ### 1. **Define the Features Affecting Stock Price**
 
 * **Stock Price Inputs**: Opening, closing, high, low, and volume.
