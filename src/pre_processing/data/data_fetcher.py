@@ -19,6 +19,33 @@ from serpapi import GoogleSearch
 import joblib
 import glob
 
+
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.options import Options
+# from webdriver_manager.chrome import ChromeDriverManager
+# import time
+# import pandas as pd
+
+# url="https://groww.in/stocks/intraday"
+# # Setup Chrome Options
+# chrome_options = Options()
+# chrome_options.add_argument("--headless")  # Run browser invisibly
+# chrome_options.add_argument("--no-sandbox")
+# chrome_options.add_argument("--disable-dev-shm-usage")
+
+# # Setup driver
+# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+# # Open the page
+# driver.get(url)
+# time.sleep(5)  # Wait for page to fully load (increase if internet is slow)
+
+# # Extract stock names and links
+# stocks = driver.find_elements(By.TAG_NAME, "table")
+# stock_data = []
+
 load_dotenv(".env")
 
 def get_todays_nifty_data():
@@ -404,6 +431,50 @@ class DatasetGenerator:
     def get_dataset(self,ticker):
         return StockDataset(self.data_params[ticker])
 
+
+
+def scrape_intraday_stocks(url="https://groww.in/stocks/intraday"):
+    # Setup Chrome Options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run browser invisibly
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    # Setup driver
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    
+    # Open the page
+    driver.get(url)
+    time.sleep(5)  # Wait for page to fully load (increase if internet is slow)
+
+    # Extract stock names and links
+    stocks = driver.find_elements(By.TAG_NAME, "table")
+    stock_data = []
+    
+    for stock in stocks:
+        try:
+            name = stock.text
+            link_element = stock.find_element(By.TAG_NAME, "a")
+            link = link_element.get_attribute('href')
+            stock_data.append({"Stock": name, "Link": link})
+        except:
+            continue
+
+    driver.quit()
+    
+    # Save to dataframe
+    df = pd.DataFrame(stock_data)
+    return df
+
+# Run
+intraday_stocks_df = scrape_intraday_stocks()
+print(intraday_stocks_df)
+
+# Save if you want
+intraday_stocks_df.to_csv('intraday_stocks_groww.csv', index=False)
+print("✅ Data saved to 'intraday_stocks_groww.csv'")
+
+    
 class StockDataset(Dataset):
     def __init__(self, params, input_seq_length=50, output_seq_length=1, load_scaler=False, fit_scaler=True, scaler_path="scaler.pkl"):
         self.params = params

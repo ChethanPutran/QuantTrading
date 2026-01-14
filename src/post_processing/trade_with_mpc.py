@@ -1,23 +1,128 @@
-To create a **Model Predictive Controller (MPC)** for **buy/sell/hold decisions** with an **LSTM model** as the system dynamics (state model), we need to follow a few steps. Here's a detailed breakdown of the process:
 
-### Key Concepts:
-1. **LSTM Model**: We will use an LSTM model trained on historical stock data to predict future stock prices, returns, or trends.
-2. **MPC (Model Predictive Control)**: We will use MPC to optimize the future reward (e.g., profit) over a prediction horizon by controlling the buy/sell/hold decisions based on the model’s predictions.
-3. **Optimization**: The goal is to select the optimal sequence of buy/sell/hold actions that maximize future returns while considering constraints (e.g., risk, position limits).
 
-### Steps:
-1. **Train an LSTM Model**: The LSTM will model the stock price movements.
-2. **Set up MPC**: Use the LSTM's predictions within an MPC framework to make decisions that optimize future returns.
-3. **Cost Function**: We will define the cost function (reward) that MPC will optimize, e.g., maximize returns or minimize portfolio risk.
-4. **Control Horizon**: The number of steps into the future the MPC will consider when making decisions.
+# Define MPC Controller class
+class MPCController:
+    def __init__(self, model, time_horizon, initial_balance=10000):
+        self.model = model
+        self.time_horizon = time_horizon
+        self.initial_balance = initial_balance
+        self.balance = initial_balance
+        self.positions = 0  # Current stock position (number of shares held)
+        
+    def objective_function(self, actions, historical_features,charges=20):
+        """
+        Objective function to maximize the cumulative reward (profit).
+        actions: List of buy/sell/hold actions
+        historical_prices: Stock prices for the time horizon
+        """
+        balance = self.initial_balance
+        positions = 0
+        total_reward = 0
+        for t in range(self.time_horizon):
+            action = np.round(actions[t])
+            features = historical_features[t]
 
-### Step 1: Train LSTM Model to Predict Stock Prices
+            # Model predicts profit if we act now
+            predicted_profit = self.predict_profit(features)
+            
+            if action == 1:  # Buy
+                num_shares = balance // features[0]  # Assume price is the first feature
+                balance -= num_shares * features[0] + charges
+                positions += num_shares
+            elif action == -1 and positions > 0:  # Sell only if holding shares
+                balance += positions * features[0] - charges
+                positions = 0
 
-First, we train an LSTM model on historical stock data to predict the stock price or returns in the future. 
+            # Portfolio Value: balance + value of held shares
+            total_reward = balance + positions * features[0] + predicted_profit
+        
+        return -total_reward  # Minimize negative of total expected reward
 
-Here's a simple example of training an LSTM model:
+            if action == 1:  # Buy
+                positions += balance // price
+                balance -= positions * price - charges
+            elif action == -1:  # Sell
+                balance += positions * price - charges
+                positions = 0
 
-```python
+            # Reward: The value of the portfolio
+            total_reward = balance + positions * price
+        
+        return -total_reward  # We minimize the negative reward
+
+        """
+        Objective: Maximize the expected cumulative profit based on model predictions.
+        actions: [buy(1)/sell(-1)/hold(0)] for each time step
+        historical_features: technical indicators for time_horizon
+        """
+        balance = self.initial_balance
+        positions = 0
+        total_reward = 0
+        
+        for t in range(self.time_horizon):
+            action = np.round(actions[t])  # round to 0, 1, or -1
+            features = historical_features[t]
+
+            # Model predicts profit if we act now
+            predicted_profit = self.predict_profit(features)
+
+           
+
+    import numpy as np
+import torch
+from scipy.optimize import minimize
+
+class MPCController:
+    def __init__(self, model, time_horizon, initial_balance=10000, device="cpu"):
+        self.model = model
+        self.time_horizon = time_horizon
+        self.initial_balance = initial_balance
+        self.balance = initial_balance
+        self.positions = 0
+        self.device = device
+        
+    def predict_profit(self, input_features):
+        """
+        Use the trained LSTM model to predict profit after 'n' minutes.
+        input_features: tensor of shape (seq_len, features)
+        """
+        self.model.eval()
+        with torch.no_grad():
+            input_features = torch.tensor(input_features, dtype=torch.float32).unsqueeze(0).to(self.device)  # (batch, seq_len, features)
+            output = self.model(input_features)
+            predicted_profit = output.item()
+        return predicted_profit
+
+    def objective_function(self, actions, historical_features, charges=20):
+        
+    def optimize_actions(self, historical_features):
+        # Start with all hold actions
+        initial_actions = np.zeros(self.time_horizon)
+        
+        bounds = [(-1, 1) for _ in range(self.time_horizon)]  # -1: sell, 0: hold, 1: buy
+        
+        result = minimize(self.objective_function, initial_actions, args=(historical_features,),
+                          bounds=bounds, method='SLSQP')
+        
+        optimal_actions = np.round(result.x)  # final action sequence rounded to integers
+        return optimal_actions
+
+    def optimize_actions(self, historical_prices):
+        # Initial guess for actions (0: Hold, 1: Buy, -1: Sell)
+        initial_actions = np.zeros(self.time_horizon)
+
+        # Constraints: Ensure that we do not buy/sell more than the available balance
+        bounds = [(0, 1) for _ in range(self.time_horizon)]  # Buy or hold actions
+        
+        # Optimize the actions using the objective function
+        result = minimize(self.objective_function, initial_actions, args=(historical_prices,),
+                          bounds=bounds, method='SLSQP')
+        
+        return result.x  # Optimal actions (0: Hold, 1: Buy, -1: Sell)
+
+"""
+This LSTM model takes the last 60 days of closing prices to predict the next day's closing price.
+"""
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -63,23 +168,17 @@ model.fit(X_train, y_train, epochs=10, batch_size=32)
 
 # Save the trained model
 model.save('lstm_stock_model.h5')
-```
 
-This LSTM model takes the last 60 days of closing prices to predict the next day's closing price.
+
 
 ### Step 2: Set Up MPC to Optimize Buy/Sell/Hold
+"""
 
-We will now set up an **MPC controller** that uses the **LSTM predictions** for stock prices to decide on **buy/sell/hold** actions. The MPC will optimize the future reward, which is based on the predicted stock price.
+We will now set up an **MPC controller** that uses the
+ **LSTM predictions** for stock prices to decide on **buy/sell/hold** actions.
+   The MPC will optimize the future reward, which is based on the predicted stock price.
 
-#### Key Components of MPC:
-- **Prediction Model**: LSTM model (trained above) predicts the stock prices.
-- **Decision Variables**: Buy (1), Sell (-1), or Hold (0).
-- **Objective Function**: Maximize cumulative profit (reward) by choosing the best actions at each time step.
-- **Constraints**: Limit to a certain amount of capital, no short-selling, etc.
-
-We’ll use **scipy.optimize** to perform the optimization. Here's how we can implement it:
-
-```python
+"""
 from scipy.optimize import minimize
 import numpy as np
 import tensorflow as tf
@@ -165,20 +264,4 @@ mpc_controller = MPCController(model=model, time_horizon=5)
 # Simulate MPC and get actions
 actions = simulate_mpc(historical_prices, mpc_controller)
 print("MPC Buy/Sell/Hold actions:", actions)
-```
 
-### Step 3: Understanding the Code
-
-1. **LSTM Prediction**: The LSTM model predicts the next stock price using historical data (e.g., closing prices).
-2. **MPC Controller**:
-   - **Objective Function**: The function `objective_function` calculates the total reward (portfolio value) for a given sequence of buy/sell/hold actions over a defined time horizon.
-   - **Optimization**: We use **`scipy.optimize.minimize`** to find the optimal sequence of actions (buy/sell/hold) that maximizes the future reward (portfolio value).
-3. **Simulating the Strategy**: The **`simulate_mpc`** function runs the optimization process and generates the buy/sell/hold signals for each step in the time horizon.
-
-### Step 4: Next Steps
-
-- **Train and Evaluate**: Train the LSTM model on real data, and evaluate the MPC performance on unseen stock data.
-- **Real-Time Deployment**: Integrate this MPC controller into a real-time trading environment using an API (e.g., Alpaca).
-- **Risk Management**: Implement position sizing, stop-loss, or other risk management strategies.
-
-This provides a robust framework for building a stock trading strategy with LSTM-based MPC. Would you like to explore any specific part further or deploy it in a real-time environment? Let me know how you'd like to proceed!

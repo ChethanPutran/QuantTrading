@@ -1,42 +1,9 @@
-To replace the handcrafted weights with those learned via regression or machine learning, and to reduce the feature space using **PCA** (Principal Component Analysis), we can follow a step-by-step process.
+"""
+Perform PCA on the feature set
+Train a Regression Model
+Use the Learned Model for Stock Price Prediction
+"""
 
-Here's a breakdown of the steps:
-
----
-
-### 1. **Use PCA for Dimensionality Reduction**
-
-We will reduce the feature space by applying PCA to extract the most important features.
-
-### 2. **Train a Regression Model (e.g., Linear Regression or Random Forest)**
-
-Once we reduce the features, we can use a regression model to learn the weights from historical data.
-
----
-
-### 📊 **Steps for Implementation**:
-
-#### **Step 1: Perform PCA on the feature set**
-
-First, we will apply PCA to the features before feeding them into a regression model. This helps reduce the dimensionality and can capture latent variables that explain most of the variance in the data.
-
-#### **Step 2: Train a Regression Model**
-
-We will use **linear regression** as an example, but you could replace it with any model (e.g., Random Forest, XGBoost, or Neural Networks).
-
-#### **Step 3: Use the Learned Model for Stock Price Prediction**
-
-After training the regression model, we can use it to predict the stock price by feeding in new data points.
-
----
-
-### 🛠 **Code Implementation**
-
-Here is how you can implement this:
-
-#### **1. PCA and Regression Model Setup**
-
-```python
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
@@ -64,13 +31,11 @@ regressor.fit(X_train, y_train)
 # --- Step 4: Evaluate the Model ---
 y_pred = regressor.predict(X_test)
 print(f"Model R^2 score: {regressor.score(X_test, y_test)}")
-```
 
-#### **2. Predict Stock Price with the Trained Model**
 
-Now that we have trained the model, we can integrate it into the stock price function and predict the stock price based on the learned regression weights.
+#### Predict Stock Price with the Trained Model
 
-```python
+
 def complex_stock_price_model_with_ml(features, base_price, regressor, pca, scaler):
     """
     Predict stock price based on features using a PCA and Regression model.
@@ -132,28 +97,3 @@ new_features = {
 predicted_price = complex_stock_price_model_with_ml(new_features, base_price=100.0, 
                                                    regressor=regressor, pca=pca, scaler=scaler)
 print(f"Predicted stock price: {predicted_price:.2f}")
-```
-
----
-
-### 🔍 **Explanation of Steps:**
-
-1. **Standard Scaling**: The input features are standardized to have zero mean and unit variance. This is important when working with PCA and regression models.
-
-2. **PCA**: We apply PCA to reduce the dimensionality of the feature set. In this example, we keep the top 5 principal components, but you can adjust this based on the explained variance.
-
-3. **Linear Regression**: The regression model learns the relationship between the features (after PCA reduction) and the stock price. You can also try other models, such as Random Forest, XGBoost, or even Neural Networks.
-
-4. **Prediction**: For new stock data (represented as the `new_features` dictionary), the model predicts the stock price.
-
----
-
-### 🚀 **Future Steps:**
-
-* **Feature Selection**: Before applying PCA, you could use techniques like **L1 regularization** (Lasso) to perform feature selection.
-
-* **Cross-Validation**: Use cross-validation (e.g., K-fold) to ensure the model generalizes well to unseen data.
-
-* **Advanced Models**: Replace the linear regressor with more complex models like **XGBoost** or **Random Forests**.
-
-Would you like me to extend the model further by using other machine learning algorithms or integrating real-time data from APIs?

@@ -1,24 +1,175 @@
-Let's extend the model further by integrating more advanced machine learning algorithms and using real-time data from APIs. We'll:
+def get_model(model_name='xgbr'):   
+    from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier
+    # from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.svm import SVC,SVR
+    from sklearn.naive_bayes import CategoricalNB
+    from sklearn.linear_model import LinearRegression
+    from xgboost import XGBRegressor,XGBClassifier
 
-1. **Integrate More Machine Learning Algorithms**: We'll explore how we can integrate **Random Forests** and **XGBoost**, which are more robust than linear regression, and perform **hyperparameter tuning** for better performance.
+    model = None
+    if model_name == 'dtc':
+        # Decision Tree Classifier
+        model = DecisionTreeClassifier()
+    elif model_name == 'dtr':
+        # Decision Tree Regressor
+        model = DecisionTreeRegressor()
+    elif model_name == 'rtc':
+        # Random Forest Classifier
+        model = RandomForestClassifier()
+    elif model_name == 'rtr':
+        # Random Forest Regressor
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+    elif model_name == 'svc':
+        # Support Vector Machine (SVM) Classifier
+        model = SVC(kernel='rbf', C=1.0)
+    elif model_name == 'svr':
+        # Support Vector Machine (SVM) Regressor
+        model = SVR(kernel='rbf', C=1.0, epsilon=0.1)
+    elif model_name == 'xgbc':
+        # XGB Classifier
+        model = XGBClassifier()
+    elif model_name == 'xgbr':
+        # XGB Regressor
+        model = XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+    return model
 
-2. **Real-Time Data from APIs**: We will use APIs like **Alpha Vantage** or **Yahoo Finance** to get real-time stock data.
+def full_feature_stock_model(features, weights, base_price):
+    """
+    Simulates stock price with maximum realism using all known influential features.
+    
+    Parameters:
+    - features: dict of all input features.
+    - weights: dict mapping feature names to importance.
+    - base_price: float, last known price.
+    
+    Returns:
+    - float: simulated price
+    """
 
----
+    # --- Normalizations and Interactions ---
+    rsi_score = np.tanh((features['rsi'] - 50) / 20)
+    macd_score = features['macd'] - features['macd_signal']
+    sma_trend = np.tanh((features['sma_9'] - features['sma_21']) / base_price)
+    vwap_diff = (features['price'] - features['vwap']) / features['vwap']
+    atr_score = np.tanh(features['atr'] / base_price)
+    adx_trend_strength = np.tanh(features['adx'] / 50)
 
-### 🛠 **1. Machine Learning Algorithms Extension**
+    pe_inverse = 1 / (features['pe_ratio'] + 1e-6)
+    eps_momentum = np.log1p(features['eps']) * np.tanh(features['revenue_growth'])
+    debt_penalty = -np.tanh(features['debt_to_equity'] / 2)
+    margin_gain = np.tanh(features['profit_margin'])
 
-We'll use **Random Forest** and **XGBoost** as an alternative to Linear Regression for stock price prediction.
+    news_score = np.sign(features['news_sentiment']) * np.sqrt(abs(features['news_sentiment']))
+    social_score = np.log1p(features['social_volume']) * features['social_sentiment']
+    insider_score = features['insider_activity'] - features['short_seller_activity']
 
-#### **Random Forest**: This model is a powerful ensemble method that works well with tabular data and can handle non-linear relationships better than linear regression.
+    inflation_penalty = -np.exp(features['cpi']) / 100
+    yield_drag = -np.tanh(features['treasury_yield'] / 10)
+    oil_penalty = -np.tanh(features['crude_oil_price'] / 100)
+    unemployment_penalty = -np.tanh(features['unemployment_rate'] / 10)
 
-#### **XGBoost**: A more advanced gradient-boosting algorithm that often provides state-of-the-art performance for regression tasks.
+    geopolitics_drag = -features['geopolitical_risk']
+    earnings_surprise = np.tanh(features['earnings_surprise'])
 
----
+    iv_penalty = -np.tanh(features['implied_volatility'])
+    liquidity_signal = np.tanh(features['order_book_depth'] / 1000)
 
-### 📊 **Step 1: Random Forest and XGBoost Implementation**
+    rating_boost = features['analyst_rating_change']
+    guidance_shift = np.tanh(features['guidance_change'])
 
-```python
+    # --- Weighted Aggregation ---
+    score = 0.0
+
+    # Technical
+    score += weights['rsi'] * rsi_score
+    score += weights['macd'] * macd_score
+    score += weights['sma'] * sma_trend
+    score += weights['vwap'] * vwap_diff
+    score += weights['atr'] * atr_score
+    score += weights['adx'] * adx_trend_strength
+    score += weights['bollinger'] * features['bollinger_width']
+
+    # Fundamental
+    score += weights['pe'] * pe_inverse
+    score += weights['eps'] * eps_momentum
+    score += weights['debt'] * debt_penalty
+    score += weights['margin'] * margin_gain
+    score += weights['dividend'] * features['dividend_yield']
+    score += weights['fcf'] * np.tanh(features['free_cash_flow'])
+
+    # Sentiment
+    score += weights['news'] * news_score
+    score += weights['social'] * social_score
+    score += weights['insider'] * insider_score
+    score += weights['analyst'] * rating_boost
+    score += weights['guidance'] * guidance_shift
+
+    # Macro
+    score += weights['cpi'] * inflation_penalty
+    score += weights['yield'] * yield_drag
+    score += weights['oil'] * oil_penalty
+    score += weights['unemployment'] * unemployment_penalty
+    score += weights['geopolitical'] * geopolitics_drag
+    score += weights['dxy'] * -np.tanh(features['usd_index'] / 100)
+
+    # Microstructure
+    score += weights['volume'] * np.log1p(features['volume_change'])
+    score += weights['iv'] * iv_penalty
+    score += weights['liquidity'] * liquidity_signal
+    score += weights['putcall'] * -features['put_call_ratio']
+
+    # Events
+    score += weights['earnings'] * earnings_surprise
+    score += weights['merger'] * features['mna_activity']
+
+    # Final score
+    price = base_price * (1 + np.tanh(score))
+    return round(price, 2)
+
+def ultra_complex_price_model(features: dict, weights: dict, base_price: float):
+    """
+    Simulate next stock price based on ultra-complex multi-domain features.
+    
+    Args:
+    - features: Dictionary of feature values (numeric).
+    - weights: Dictionary of feature weights (importance).
+    - base_price: Last closing price or base price.
+
+    Returns:
+    - Simulated price
+    """
+    score = 0
+
+    for key in features:
+        val = features[key]
+        w = weights.get(key, 0.0)
+
+        # Nonlinear transformation
+        if key.startswith('rsi') or key.startswith('sentiment'):
+            val = np.tanh((val - 50) / 20)
+        elif key.startswith('volatility') or key.startswith('iv') or key.endswith('deviation'):
+            val = np.tanh(val)
+        elif 'spread' in key or 'yield' in key:
+            val = -np.abs(val)
+        elif key.endswith('score') or 'surprise' in key:
+            val = np.tanh(val)
+        elif key.startswith('growth') or key.endswith('change') or key.endswith('momentum'):
+            val = np.log1p(val)
+        elif 'penalty' in key or 'risk' in key or 'drag' in key:
+            val = -np.tanh(val)
+        elif key.endswith('_flag'):
+            val = float(val)  # 0 or 1
+        else:
+            val = val
+
+        score += w * val
+
+    impact = np.tanh(score)  # to keep price change bounded
+    predicted_price = base_price * (1 + impact)
+    return round(predicted_price, 2)
+
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import xgboost as xgb
@@ -57,24 +208,7 @@ xg_pred = xg_regressor.predict(X_test)
 
 print(f"Random Forest MAE: {mean_absolute_error(y_test, rf_pred)}")
 print(f"XGBoost MAE: {mean_absolute_error(y_test, xg_pred)}")
-```
 
-### **Key Improvements**:
-
-* **Random Forest** and **XGBoost** are ensemble methods that improve model accuracy by reducing variance and bias.
-* **Mean Absolute Error (MAE)** is used to evaluate the models. You can replace this with other metrics like RMSE (Root Mean Square Error) or R² depending on your needs.
-
----
-
-### 🛠 **2. Integrating Real-Time Stock Data from APIs**
-
-We'll now integrate **Alpha Vantage** to fetch real-time stock data. You need an **API key** from Alpha Vantage (you can sign up [here](https://www.alphavantage.co/support/#api-key)).
-
----
-
-### 📈 **Step 2: Fetch Real-Time Data Using Alpha Vantage**
-
-```python
 import requests
 import pandas as pd
 
@@ -112,17 +246,7 @@ api_key = "YOUR_ALPHA_VANTAGE_API_KEY"
 symbol = "AAPL"  # Example: Apple Inc.
 stock_data = get_stock_data(symbol, api_key)
 print(stock_data.head())
-```
 
-This function pulls the latest 5-minute interval data for a given stock symbol and returns it as a **Pandas DataFrame**. You can then use this data as input to your stock price prediction model.
-
----
-
-### 🛠 **3. Putting Everything Together**
-
-Now we’ll modify our stock prediction function to use **real-time data** and **trained models** (Random Forest or XGBoost).
-
-```python
 def predict_real_time_stock_price(symbol, regressor, pca, scaler, api_key):
     """
     Predict stock price in real-time using trained model and real-time stock data.
@@ -162,26 +286,3 @@ def predict_real_time_stock_price(symbol, regressor, pca, scaler, api_key):
 predicted_price = predict_real_time_stock_price(symbol="AAPL", regressor=rf_regressor, 
                                                 pca=pca, scaler=scaler, api_key=api_key)
 print(f"Predicted real-time stock price: {predicted_price:.2f}")
-```
-
----
-
-### 📚 **Real-Time Data Features to Use**:
-
-* **Closing Price**: The last traded price of the stock.
-* **Volume**: The number of shares traded.
-* **Open, High, Low**: The opening, highest, and lowest prices for the stock.
-
-These features can be fed into the machine learning model to predict the next potential price.
-
----
-
-### 🚀 **Future Enhancements**:
-
-1. **Real-Time Model Retraining**: Implement a system that retrains the model periodically with new data to adapt to changing market conditions.
-
-2. **Web Scraping or Sentiment Analysis**: Integrate sentiment analysis of news articles or social media to predict stock movements based on news events.
-
-3. **Additional APIs**: Use **Yahoo Finance**, **Polygon**, or **Quandl** for more detailed financial and fundamental data.
-
-Would you like to see how to implement live stock predictions with backtesting or expand to include more advanced features (like news sentiment or options flow)?

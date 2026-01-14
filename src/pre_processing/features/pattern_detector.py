@@ -45,7 +45,7 @@ class Tool:
         'SUPERTs': 0.05
         }
         trend_params = pd.DataFrame(index=data.index)
-        # 📊 Trend Indicators
+        #  Trend Indicators
         trend_params['EMAs'] = data.ta.ema(
             length=ema_short_length)
         trend_params['EMAl'] = data.ta.ema(
@@ -126,7 +126,7 @@ class Tool:
         }
          
         volatility_params = pd.DataFrame(index=data.index)
-        # 📉 Volatility
+        #  Volatility
         volatility_params[["BBL", "BBM", "BBU","BBB", "BBP"]] = data.ta.bbands(length=bbl_length)
         volatility_params['ATR'] = data.ta.atr(length=atr_length)
         if single:
@@ -152,7 +152,7 @@ class Tool:
             'VS': 0.25
         }
         volume_params = pd.DataFrame(index=data.index)
-        # 📈 Volume
+        #  Volume
         volume_params['VMA'] = data['Volume'].rolling(window=vma_length).mean()
         volume_params['VWAP'] = data.ta.vwap()
         volume_params['OBV'] = data.ta.obv()
@@ -348,6 +348,31 @@ class Tool:
         data['Bearish'] = df_cd[df_cd < 0].sum(axis=1)
         return data
 
+def find_candlestick_pattern(data):
+    # Initialize the DataFrame to hold the patterns with the same index as the input data
+    cd_patterns = pd.DataFrame(index=data.index)
+    
+    # Get the list of candlestick pattern functions from TA-Lib
+    patterns = talib.get_function_groups()['Pattern Recognition']
+    
+    # Loop through each pattern and calculate its value
+    for pattern in patterns:
+        # Get the corresponding TA-Lib function for the pattern
+        func = getattr(talib, pattern)
+        
+        # Call the function for the candlestick pattern and assign it as a new column
+        cd_patterns[pattern] = func(data['Open'], data['High'], data['Low'], data['Close'])
+    
+    return cd_patterns
+
+def add_technical_params(data_):
+    data = data_.copy()
+    df_cd = find_candlestick_pattern(data_)
+    # Get the bullish & bear technical indicator
+    data['Bullish'] = df_cd[df_cd > 0].sum(axis=1)
+    data['Bearish'] = df_cd[df_cd < 0].sum(axis=1)
+    df_technical_params = capture_technical_params(data_).bfill().ffill()
+    return pd.concat([data,df_technical_params], axis=1)
 
 if __name__ == "__main__":
     from data.data_fetcher import load_stock_data

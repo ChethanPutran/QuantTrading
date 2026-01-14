@@ -174,6 +174,56 @@ class FeatureBuilder:
         return self.features
 
 
+def compute_quarterly_metrics(ticker,start_date,end_date):
+    stock = yf.Ticker(ticker)
+
+    # Pull quarterly statements
+    income = stock.quarterly_income_stmt.T
+    balance = stock.quarterly_balance_sheet.T
+    info = stock.info
+    
+    price = info.get("currentPrice", None)
+    shares = info.get("sharesOutstanding", None)
+    market_cap = info.get("marketCap", price * shares)
+    
+    df = pd.concat([income,balance],axis=1).sort_index(ascending=False)
+    df = df[(df.index >= start_date) & (df.index <= end_date)].astype('float').bfill().ffill()
+    
+    # Compute Profitability Ratios
+    df['EBITDA Margin'] = df['EBITDA'] / df['Total Revenue']
+    df['EBIT Margin'] = df['EBIT'] / df['Total Revenue']
+    df['Net Profit Margin'] = df['Net Income'] / df['Total Revenue']
+    df['Basic EPS'] = df['Net Income'] / df['Basic Average Shares']
+    
+    # Compute Liquidity Ratios
+    df['Current Ratio'] = df['Current Assets'] / df['Current Liabilities']
+    df['Quick Ratio'] = (df['Current Assets'] - df['Inventory']) / df['Current Liabilities']
+    
+    # Compute Leverage Ratios
+    df['Debt-to-Equity'] = df['Total Debt'] / df['Stockholders Equity']
+    df['Debt Ratio'] = df['Total Debt'] / df['Total Assets']
+    # df['Long-Term Debt-to-Equity'] = df['Long Term Debt'] / df['Stockholders Equity']
+    
+    # Compute Efficiency Ratios
+    df['Asset Turnover'] = df['Total Revenue'] / df['Total Assets']
+    df['Inventory Turnover'] = df['Cost Of Revenue'] / df['Inventory']
+    
+    # Compute Additional Fundamental Ratios
+    df['EPS'] = df['Net Income'] / df['Basic Average Shares']  # Earnings per Share
+    df['P/E Ratio'] = price / df['EPS']  # Price to Earnings Ratio
+    df['P/B Ratio'] = price  / (df['Stockholders Equity'] / shares ) # Price to Book Ratio
+    df['P/S Ratio'] = price  / (df['Total Revenue'] / shares)  # Price to Sales Ratio
+    df['ROE'] = df['Net Income'] / df['Stockholders Equity']  # Return on Equity
+    df['Net Margin'] = df['Net Income'] / df['Total Revenue']  # Net Profit Margin
+    
+    # Compute EV/EBITDA - Requires Market Cap and Cash equivalents
+    df['EV'] = market_cap + df['Total Debt'] - df['Cash And Cash Equivalents']  # Enterprise Value
+    df['EV/EBITDA'] = df['EV'] / df['EBITDA']  # EV/EBITDA
+    
+    # Compute Revenue and Net Income - Already included, but can explicitly display:
+    df['Revenue'] = df['Total Revenue']
+    df['Net Income'] = df['Net Income']  # You may already have this column
+    return df
 
 if __name__ == '__main__':
     ticker = "TCS.NS"
