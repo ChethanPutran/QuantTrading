@@ -1,0 +1,28 @@
+{
+  "system_name": "Complete Supervised Trading System",
+  "timestamp": "2026-05-03T07:59:27.421394",
+  "configuration": {
+    "symbol": "^NSEI",
+    "lookback_days": 60,
+    "simulate_days": 5,
+    "top_trades_per_day": 5
+  },
+  "trade_analysis": {},
+  "model_path": "results/complete_supervised_trading_smoke/02_supervised_models/supervised_models.joblib",
+  "simulation_metrics": {
+    "symbol": "^NSEI",
+    "total_ticks": 5,
+    "initial_capital": 100000.0,
+    "final_portfolio_value": 100000.0,
+    "final_pnl": 0.0,
+    "buy_trades": 0,
+    "sell_trades": 0,
+    "mean_confidence": 0.9718243646404379,
+    "max_drawdown": 0.0
+  },
+  "recommendations": [
+    "\u2717 Negative returns (0.00%). Optimize features or increase model training data.",
+    "Note: Low trade count (0). Consider adjusting prediction thresholds.",
+    "\u2713 Low drawdown. Risk management is effective."
+  ]
+}

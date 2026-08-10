@@ -1,0 +1,63 @@
+# General settings
+system:
+  name: trading_system
+  mode: backtest   # live | backtest
+  seed: 42
+
+# Data settings
+data:
+  frequency: 0.1        # seconds
+  lookback_window: 50
+
+# Kalman Filter
+kalman:
+  dt: 1.0
+  process_noise: 1e-4
+  measurement_noise: 1e-2
+
+# Feature settings
+features:
+  use_rsi: true
+  use_volatility: true
+  use_velocity: true
+
+# GMM settings
+gmm:
+  n_components: 3
+  learning_rate: 0.01
+
+# HMM settings
+hmm:
+  n_states: 3
+  learning_rate: 0.01
+
+# Model settings
+model:
+  type: linear
+  learning_rate: 0.01
+  input_dim: 10
+
+# Hidden state
+hidden_state:
+  dim: 3
+  learning_rate: 0.01
+  decay: 0.99
+
+# Pattern DB
+pattern:
+  max_size: 10000
+  min_count_for_branch: 20
+
+# MPC settings
+mpc:
+  horizon: 5
+  action_space: [-1, 0, 1]
+
+# Training
+training:
+  update_frequency: 1
+  batch_size: 1
+
+# Logging
+logging:
+  level: INFO

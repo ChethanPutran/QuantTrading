@@ -1,0 +1,23 @@
+{
+  "32bc63d352216c91": {
+    "confidence": 0.55,
+    "success_count": 0,
+    "failure_count": 0,
+    "reward_history": [],
+    "parent_pattern_id": null
+  },
+  "6e56e108bbc8f3c5": {
+    "confidence": 0.55,
+    "success_count": 0,
+    "failure_count": 0,
+    "reward_history": [],
+    "parent_pattern_id": null
+  },
+  "3db79477d48536a7": {
+    "confidence": 0.55,
+    "success_count": 0,
+    "failure_count": 0,
+    "reward_history": [],
+    "parent_pattern_id": null
+  }
+}

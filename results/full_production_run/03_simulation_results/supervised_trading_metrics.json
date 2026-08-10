@@ -1,0 +1,11 @@
+{
+  "symbol": "^NSEI",
+  "total_ticks": 30,
+  "initial_capital": 100000.0,
+  "final_portfolio_value": 100633.14409426747,
+  "final_pnl": 633.1440942674672,
+  "buy_trades": 13,
+  "sell_trades": 15,
+  "mean_confidence": 0.7217011317007953,
+  "max_drawdown": 0.0029504498673773197
+}

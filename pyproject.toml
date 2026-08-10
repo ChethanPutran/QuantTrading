@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.1",
+]
+
+[project.optional-dependencies]
+full = [
+    "cvxpy>=1.7.0",
+    "duckdb>=1.2.0",
+    "hmmlearn>=0.3.0",
+    "lightgbm>=4.6.0",
+    "matplotlib>=3.10.0",
+    "plotly>=6.2.0",
+    "pydantic>=2.11.0",
+    "pyarrow>=21.0.0",
+    "redis>=6.4.0",
+    "river>=0.22.0",
+    "statsmodels>=0.14.5",
+    "torch>=2.8.0",
+    "websockets>=15.0.1",
+    "xgboost>=3.0.0",
+    "beautifulsoup4>=4.13.3",
+    "matplotlib-inline>=0.1.7",
+    "nsepy>=0.8",
+    "pandas-datareader>=0.10.0",
+    "urllib3>=2.3.0",
+    "yfinance>=0.2.63",
+    "ta-lib>=0.6.3",
+    "pandas-ta>=0.3.14b0",
+    "requests>=2.32.0",
+    "nltk>=3.9.0",
+    "textblob>=0.19.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "apscheduler>=3.10.0",
+]
+features = [
+    "fredapi>=0.5.2",
+    "openbb>=4.4.0",
+    "pandas-ta>=0.3.14b0",
+    "yfinance>=0.2.66",
+]
+data = [
+    "beautifulsoup4>=4.12.0",
+    "faiss-cpu>=1.12.0",
+    "feedparser>=6.0.11",
+    "google-search-results>=2.4.2",
+    "newsapi-python>=0.2.7",
+    "praw>=7.8.0",
+    "python-dateutil>=2.9.0",
+    "pytz>=2025.2",
+    "requests>=2.32.0",
+    "sentence-transformers>=5.0.0",
+    "textblob>=0.19.0",
+    "torch>=2.8.0",
+    "vaderSentiment>=3.3.2",
+    "yfinance>=0.2.66",
+]
+
+[project.scripts]
+trading-system = "trading_system.__main__:main"
+
+[tool.setuptools]
+py-modules = ["main", "main_async"]
+
+[tool.setuptools.packages.find]
+where = [".", "src"]
+include = [
+    "api*",
+    "control*",
+    "dashboard*",
+    "data*",
+    "docs*",
+    "evaluation*",
+    "execution*",
+    "features*",
+    "learning*",
+    "memory*",
+    "models*",
+    "trading_system*",
+    "pipelines*",
+    "strategies*",
+    "tests*",
+    "utils*",
+]

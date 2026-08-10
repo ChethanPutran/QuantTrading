@@ -1,0 +1,24 @@
+{
+  "symbol": "^NSEI",
+  "lookback_days": 180,
+  "total_samples": 23,
+  "train_samples": 18,
+  "val_samples": 5,
+  "models": {
+    "action_classifier": {
+      "accuracy": 0.8,
+      "model_type": "logistic_regression"
+    },
+    "profit_regressor": {
+      "rmse": 1.7678318657124772,
+      "r2": -0.24548489365078918,
+      "model_type": "gradient_boosting"
+    }
+  },
+  "validation": {
+    "SELL_accuracy": 1.0,
+    "SELL_samples": 1,
+    "BUY_accuracy": 0.75,
+    "BUY_samples": 4
+  }
+}

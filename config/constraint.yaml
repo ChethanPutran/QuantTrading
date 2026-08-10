@@ -1,0 +1,32 @@
+# Position constraints
+position:
+  max_position: 1.0
+  min_position: -1.0
+
+# Trading constraints
+trading:
+  max_trade_size: 0.5
+  max_turnover: 10
+
+# Risk constraints
+risk:
+  max_drawdown: 0.2
+  max_daily_loss: 0.05
+  volatility_limit: 0.5
+
+# Cost model
+cost:
+  spread: 0.01
+  fee: 0.001
+  slippage: 0.002
+
+# MPC penalties
+penalty:
+  position_penalty: 0.1
+  trade_penalty: 0.05
+  risk_penalty: 0.2
+
+# Execution constraints
+execution:
+  latency_ms: 100
+  fill_probability: 0.95

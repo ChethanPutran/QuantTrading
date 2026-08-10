@@ -1,0 +1,28 @@
+{
+  "system_name": "Complete Supervised Trading System",
+  "timestamp": "2026-05-03T09:09:12.820373",
+  "configuration": {
+    "symbol": "^NSEI",
+    "lookback_days": 180,
+    "simulate_days": 30,
+    "top_trades_per_day": 10
+  },
+  "trade_analysis": {},
+  "model_path": "results/full_production_run/02_supervised_models/supervised_models.joblib",
+  "simulation_metrics": {
+    "symbol": "^NSEI",
+    "total_ticks": 30,
+    "initial_capital": 100000.0,
+    "final_portfolio_value": 100633.14409426747,
+    "final_pnl": 633.1440942674672,
+    "buy_trades": 13,
+    "sell_trades": 15,
+    "mean_confidence": 0.7217011317007953,
+    "max_drawdown": 0.0029504498673773197
+  },
+  "recommendations": [
+    "\u25cb Positive returns (0.63%). System is viable.",
+    "\u2713 Good trading activity (28 total trades). System is generating signals.",
+    "\u2713 Low drawdown. Risk management is effective."
+  ]
+}

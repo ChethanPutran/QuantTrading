@@ -1,0 +1,12 @@
+{
+  "symbol": "^NSEI",
+  "total_rows": 193,
+  "train_rows": 163,
+  "simulate_rows": 30,
+  "used_lstm": false,
+  "used_xgboost": false,
+  "final_portfolio_value": 99365.29486539081,
+  "final_pnl": -634.7051346091903,
+  "buy_trades": 2,
+  "sell_trades": 1
+}

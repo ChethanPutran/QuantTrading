@@ -1,0 +1,4 @@
+timestamp,symbol,price,bid,ask,volume,spread,imbalance,metadata
+1777778073.004465,^NSEI,100.32471707975444,,,,,,"{'source': 'synthetic', 'sequence': 0}"
+1777778074.004929,^NSEI,99.3014209109102,,,,,,"{'source': 'synthetic', 'sequence': 1}"
+1777778075.005316,^NSEI,100.0664898957711,,,,,,"{'source': 'synthetic', 'sequence': 2}"
